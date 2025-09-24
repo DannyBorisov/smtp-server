@@ -13,24 +13,10 @@ steps:
     args:
     - '-c'
     - |
-      # Create VM if it doesn't exist, otherwise just update the container
-      if ! gcloud compute instances describe smtp-server --zone=us-central1-a --quiet; then
-        echo "Creating new SMTP server VM..."
-        gcloud compute instances create-with-container smtp-server \
-          --container-image=gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID \
-          --container-env=NODE_ENV=production,SMTP_HOST=0.0.0.0,SMTP_PORT=25 \
-          --machine-type=f1-micro \
-          --zone=us-central1-a \
-          --tags=smtp-server \
-          --container-restart-policy=always \
-          --boot-disk-size=10GB \
-          --boot-disk-type=pd-standard
-      else
         echo "Updating existing SMTP server VM..."
         gcloud compute instances update-container smtp-server \
           --container-image=gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID \
           --zone=us-central1-a
-      fi
 
   # Ensure firewall rules exist for SMTP
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
