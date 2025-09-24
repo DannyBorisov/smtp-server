@@ -7,7 +7,7 @@ README.md
 .nyc_output
 coverage
 .vscode
-src
+dist
 *.pem
 users.json
 *.log

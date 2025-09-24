@@ -7,12 +7,19 @@ RUN apk add --no-cache dumb-init
 WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
-# Copy package files and install dependencies
+# Copy package files and install ALL dependencies (including dev for building)
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
-# Copy built application
-COPY --chown=nodejs:nodejs dist/ ./dist/
+# Copy source code
+COPY --chown=nodejs:nodejs src/ ./src/
+COPY --chown=nodejs:nodejs tsconfig.json ./
+
+# Build TypeScript
+RUN npm run build
+
+# Remove dev dependencies
+RUN npm prune --production
 
 # Create necessary directories
 RUN mkdir -p /app/certs && chown nodejs:nodejs /app/certs
