@@ -4,7 +4,6 @@ env_variables:
   NODE_ENV: production
   SMTP_PORT: 2525
   SMTP_HOST: 0.0.0.0
-  GOOGLE_CLOUD_API_KEY: AIzaSyBVNhxZLW6nR5r5H02KhF9bJ_NeTamCjy8
 
 automatic_scaling:
   min_instances: 1

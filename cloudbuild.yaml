@@ -7,7 +7,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID']
 
-  # Deploy to Cloud Run
+  # Deploy to Cloud Run (secrets must be set manually in Cloud Console)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args: [
@@ -19,9 +19,7 @@ steps:
       '--memory', '1Gi',
       '--cpu', '1',
       '--max-instances', '10',
-      '--set-env-vars', 'NODE_ENV=production',
-      '--set-env-vars', 'SMTP_HOST=0.0.0.0',
-      '--set-env-vars', 'SMTP_PORT=2525'
+      '--set-env-vars', 'NODE_ENV=production,SMTP_HOST=0.0.0.0,SMTP_PORT=2525'
     ]
 
 images:
