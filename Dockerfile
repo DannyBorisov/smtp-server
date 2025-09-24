@@ -27,12 +27,12 @@ RUN mkdir -p /app/certs && chown nodejs:nodejs /app/certs
 # Switch to non-root user
 USER nodejs
 
-# Expose port
-EXPOSE 2525
+# Expose SMTP ports
+EXPOSE 25 587 2525
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "const net = require('net'); const client = net.createConnection(2525, 'localhost'); client.on('connect', () => { client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"
+  CMD node -e "const net = require('net'); const port = process.env.SMTP_PORT || 25; const client = net.createConnection(port, 'localhost'); client.on('connect', () => { client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]

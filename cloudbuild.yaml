@@ -7,20 +7,43 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID']
 
-  # Deploy to Cloud Run (secrets must be set manually in Cloud Console)
+  # Create/Update Compute Engine VM for SMTP server
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args: [
-      'run', 'deploy', 'smtp-server',
-      '--image', 'gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID',
-      '--region', 'us-central1',
-      '--port', '2525',
-      '--allow-unauthenticated',
-      '--memory', '1Gi',
-      '--cpu', '1',
-      '--max-instances', '10',
-      '--set-env-vars', 'NODE_ENV=production,SMTP_HOST=0.0.0.0,SMTP_PORT=2525'
-    ]
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      # Create VM if it doesn't exist, otherwise just update the container
+      if ! gcloud compute instances describe smtp-server --zone=us-central1-a --quiet; then
+        echo "Creating new SMTP server VM..."
+        gcloud compute instances create-with-container smtp-server \
+          --container-image=gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID \
+          --container-env=NODE_ENV=production,SMTP_HOST=0.0.0.0,SMTP_PORT=25 \
+          --machine-type=e2-medium \
+          --zone=us-central1-a \
+          --tags=smtp-server \
+          --container-restart-policy=always
+      else
+        echo "Updating existing SMTP server VM..."
+        gcloud compute instances update-container smtp-server \
+          --container-image=gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID \
+          --zone=us-central1-a
+      fi
+
+  # Ensure firewall rules exist for SMTP
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      # Create firewall rule if it doesn't exist
+      if ! gcloud compute firewall-rules describe allow-smtp --quiet; then
+        gcloud compute firewall-rules create allow-smtp \
+          --allow tcp:25,tcp:587,tcp:2525 \
+          --source-ranges 0.0.0.0/0 \
+          --target-tags smtp-server \
+          --description "Allow SMTP traffic"
+      fi
 
 images:
   - 'gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID'

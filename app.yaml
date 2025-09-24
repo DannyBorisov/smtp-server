@@ -2,7 +2,6 @@ runtime: nodejs18
 
 env_variables:
   NODE_ENV: production
-  SMTP_PORT: 2525
   SMTP_HOST: 0.0.0.0
 
 automatic_scaling:

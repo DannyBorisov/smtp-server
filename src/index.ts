@@ -5,8 +5,8 @@ import nodemailer from "nodemailer";
 import { simpleParser } from "mailparser";
 
 const appPassword = process.env.GMAIL_APP_PASSWORD || `kltu wuxz oyqt wulx`;
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || '2525');
-const SMTP_HOST = process.env.SMTP_HOST || 'localhost';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '25');
+const SMTP_HOST = process.env.SMTP_HOST || '0.0.0.0';
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
