@@ -1,0 +1,31 @@
+{
+  "name": "smtp-server",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-user": "npx tsx create-user.ts",
+    "dev": "npx tsx src/index.ts",
+    "dev:client": "npx tsx src/test-clien.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/smtp-server": "^3.5.12",
+    "express": "^5.1.0",
+    "mailparser": "^3.7.4",
+    "nodemailer": "^7.0.6",
+    "smtp-server": "^3.14.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  }
+}

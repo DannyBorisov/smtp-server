@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+users.json
+*.log
+*.pem
+.DS_Store
+.vscode/
+coverage/

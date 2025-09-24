@@ -1,0 +1,17 @@
+runtime: nodejs18
+
+env_variables:
+  NODE_ENV: production
+  SMTP_PORT: 2525
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+
+network:
+  forwarded_ports:
+    - 2525
+
+resources:
+  cpu: 1
+  memory_gb: 1
