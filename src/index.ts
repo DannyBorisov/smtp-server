@@ -15,10 +15,25 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const getCertificates = () => {
+  const certPath = process.env.SSL_CERT_PATH || "/app/certs/cert.pem";
+  const keyPath = process.env.SSL_KEY_PATH || "/app/certs/key.pem";
+  
+  try {
+    return {
+      cert: fs.readFileSync(certPath),
+      key: fs.readFileSync(keyPath)
+    };
+  } catch (error) {
+    console.warn("SSL certificates not found, running in non-secure mode");
+    return null;
+  }
+};
+
+const certificates = getCertificates();
 const options: SMTPServerOptions = {
-  secure: true,
-  cert: fs.readFileSync("smtp-cert.pem"),
-  key: fs.readFileSync("smtp-key.pem"),
+  secure: !!certificates,
+  ...(certificates && { cert: certificates.cert, key: certificates.key }),
   onConnect(session, callback) {
     console.log("Client connected:", session.remoteAddress, session.user);
     callback(); // Accept the connection

@@ -27,8 +27,14 @@ steps:
       '--allow-unauthenticated',
       '--memory', '1Gi',
       '--cpu', '1',
-      '--max-instances', '10'
+      '--max-instances', '10',
+      '--set-env-vars', 'NODE_ENV=production',
+      '--set-env-vars', 'SMTP_HOST=0.0.0.0',
+      '--set-env-vars', 'SMTP_PORT=2525'
     ]
 
 images:
   - 'gcr.io/$PROJECT_ID/smtp-server:$BUILD_ID'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

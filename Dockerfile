@@ -1,13 +1,32 @@
 FROM node:18-alpine
 
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory and user for security
 WORKDIR /app
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
-COPY dist/ ./dist/
-COPY smtp-cert.pem smtp-key.pem ./
+# Copy built application
+COPY --chown=nodejs:nodejs dist/ ./dist/
 
+# Create necessary directories
+RUN mkdir -p /app/certs && chown nodejs:nodejs /app/certs
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port
 EXPOSE 2525
 
-CMD ["npm", "start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "const net = require('net'); const client = net.createConnection(2525, 'localhost'); client.on('connect', () => { client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/index.js"]
